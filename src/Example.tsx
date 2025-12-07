@@ -1,13 +1,17 @@
 import { useQuery, type QueryFunction } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AMERICAN_CITIES } from "./data/AMERICAN_CITIES";
 import {
-  DirectorySearchClient,
+  TextSearchClient,
   type EventCallbackData,
-} from "./services/DirectorySearchClient";
+} from "./services/TextSearchClient";
 
 export function Example() {
   const [userQuery, setUserQuery] = useState("");
-  const searchClient = useMemo(() => new DirectorySearchClient(), []);
+  const searchClient = useMemo(
+    () => new TextSearchClient(AMERICAN_CITIES, { randomizeDelay: true }),
+    []
+  );
   const search: QueryFunction<string[], string[]> = useCallback(
     ({ queryKey }) => {
       return searchClient.search(queryKey?.[0]);

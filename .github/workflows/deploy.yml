@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main   # Deploy when main is updated
+      - main # Deploy when main is updated
 
 permissions:
   contents: write
@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'   # or your version
+          node-version: "20" # or your version
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -30,7 +30,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm build   # must output to ./dist
+        run: pnpm build # must output to ./dist
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4

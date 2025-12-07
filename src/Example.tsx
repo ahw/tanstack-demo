@@ -1,10 +1,11 @@
 import { useQuery, type QueryFunction } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AMERICAN_CITIES } from "./data/AMERICAN_CITIES";
 import {
   TextSearchClient,
   type EventCallbackData,
 } from "./services/TextSearchClient";
+import { formatNumber } from "./utils/format";
 
 export function Example() {
   const [userQuery, setUserQuery] = useState("");
@@ -19,13 +20,20 @@ export function Example() {
     [searchClient]
   );
 
-  const [searchClientEvents, setSearchClientEvents] = useState<string[]>([]);
+  const t0 = useRef<number | undefined>(undefined);
+  const [searchClientEvents, setSearchClientEvents] = useState<
+    { time: number; data: string }[]
+  >([]);
 
   useEffect(() => {
     const eventHandler = (data: EventCallbackData) => {
+      t0.current ??= Date.now();
       setSearchClientEvents((events) => [
         ...events,
-        data.eventName + ": " + data.data.join(", "),
+        {
+          time: Date.now(),
+          data: data.eventName + ": " + data.data.join(", "),
+        },
       ]);
     };
 
@@ -147,13 +155,19 @@ export function Example() {
 
       <div>
         <h1>searchClient events</h1>
-        <div className="box box_border">
+        <table className="box box_border">
           {searchClientEvents.map((event, index) => (
-            <div key={index} style={{ fontFamily: "monospace" }}>
-              {event}
-            </div>
+            <tr key={index} style={{ fontFamily: "monospace" }}>
+              <td className="px-1 text-gray-500">
+                {formatNumber((event.time - (t0.current ?? 0)) / 1000, {
+                  maximumFractionDigits: 3,
+                  minimumFractionDigits: 3,
+                })}
+              </td>
+              <td className="px-1">{event.data}</td>
+            </tr>
           ))}
-        </div>
+        </table>
       </div>
     </div>
   );

@@ -117,7 +117,7 @@ export function Example() {
 
   return (
     <div>
-      <div className="p-2 border border-dashed border-black">
+      <div className="px-2">
         <input
           type="checkbox"
           id="randomizeDelay"
@@ -150,6 +150,7 @@ export function Example() {
           }
         />
       </div>
+      <hr className="my-4 border-t-0 border-b border-dashed border-black" />
 
       <div style={{ display: "flex", gap: "2rem" }}>
         <div>

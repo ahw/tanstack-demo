@@ -99,6 +99,7 @@ export function Example() {
         <h1>Search</h1>
         <input
           type="text"
+          className="box"
           style={{
             width: "100%",
             marginBottom: "1rem",
@@ -110,7 +111,8 @@ export function Example() {
         />
         <h1>Results</h1>
         <div
-          style={{ height: 200, overflow: "auto", border: "1px dashed black" }}
+          className="box box_border"
+          style={{ height: 200, overflow: "auto" }}
         >
           {data?.map((result) => (
             <code style={{ display: "block" }} key={result}>
@@ -120,12 +122,13 @@ export function Example() {
         </div>
       </div>
       <div>
-        <h1>React Query States</h1>
-        <table style={{ border: "1px dashed black" }}>
+        <h1>useQuery states</h1>
+        <table className="box box_border">
           {stateItems.map(([key, value]) => (
-            <tr key={key}>
-              <td>{key}</td>
+            <tr className="border-b border-solid border-black" key={key}>
+              <td className="px-1">{key}</td>
               <td
+                className="px-1"
                 style={{
                   backgroundColor:
                     typeof value === "boolean"
@@ -143,8 +146,8 @@ export function Example() {
       </div>
 
       <div>
-        <h1>DirectorySearchClient events</h1>
-        <div>
+        <h1>searchClient events</h1>
+        <div className="box box_border">
           {searchClientEvents.map((event, index) => (
             <div key={index} style={{ fontFamily: "monospace" }}>
               {event}

@@ -1,5 +1,5 @@
 import { useQuery, type QueryFunction } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AMERICAN_CITIES } from "./data/AMERICAN_CITIES";
 import { ExampleControls } from "./ExampleControls";
 import { SearchClientEventBlotter } from "./SearchClientEventBlotter";
@@ -8,23 +8,27 @@ import { TextSearchClient } from "./services/TextSearchClient";
 export interface ExampleState {
   delay?: number;
   randomizeDelay?: boolean;
+  errorRate?: number;
 }
 
 export function Example() {
   const [exampleState, setExampleState] = useState<ExampleState>({
     randomizeDelay: false,
     delay: 300,
+    errorRate: 0.1,
   });
 
   const [userQuery, setUserQuery] = useState("");
-  const searchClient = useMemo(
-    () =>
-      new TextSearchClient(AMERICAN_CITIES, {
-        randomizeDelay: exampleState.randomizeDelay,
-        delay: exampleState.delay,
-      }),
-    [exampleState.delay, exampleState.randomizeDelay]
-  );
+  const searchClient = useMemo(() => new TextSearchClient(AMERICAN_CITIES), []);
+
+  useEffect(() => {
+    searchClient.setOptions({
+      delay: exampleState.delay,
+      randomizeDelay: exampleState.randomizeDelay,
+      errorRate: exampleState.errorRate,
+    });
+  }, [exampleState, searchClient]);
+
   const search: QueryFunction<string[], string[]> = useCallback(
     ({ queryKey }) => {
       return searchClient.search(queryKey?.[0]);
@@ -57,14 +61,13 @@ export function Example() {
     queryKey: [userQuery],
     enabled: ({ queryKey }) => queryKey?.[0]?.length > 0,
     queryFn: search,
+    retry: 10,
+    retryDelay: 1000,
   });
 
   const statesToDisplay = {
     status,
     fetchStatus,
-    error,
-    failureCount,
-    failureReason,
     isEnabled,
     isError,
     isFetched,
@@ -79,6 +82,9 @@ export function Example() {
     isRefetching,
     isStale,
     isSuccess,
+    error,
+    failureCount,
+    failureReason,
   };
 
   const stateItems = useMemo(() => {

@@ -42,17 +42,19 @@ export function SearchClientEventBlotter({
     <div>
       <h1>searchClient events</h1>
       <table className="box box_border">
-        {searchClientEvents.map((event, index) => (
-          <tr key={index} style={{ fontFamily: "monospace" }}>
-            <td className="px-1 text-gray-500">
-              {formatNumber((event.time - (t0.current ?? 0)) / 1000, {
-                maximumFractionDigits: 3,
-                minimumFractionDigits: 3,
-              })}
-            </td>
-            <td className="px-1">{event.data}</td>
-          </tr>
-        ))}
+        <tbody>
+          {searchClientEvents.map((event, index) => (
+            <tr key={index} style={{ fontFamily: "monospace" }}>
+              <td className="px-1 text-gray-500">
+                {formatNumber((event.time - (t0.current ?? 0)) / 1000, {
+                  maximumFractionDigits: 3,
+                  minimumFractionDigits: 3,
+                })}
+              </td>
+              <td className="px-1">{event.data}</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     </div>
   );

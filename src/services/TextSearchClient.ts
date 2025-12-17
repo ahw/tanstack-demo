@@ -10,9 +10,10 @@ interface Events {
   searchFailed: (data: EventCallbackData) => void;
 }
 
-interface PreprocessedEntry {
+interface PreprocessedEntry<T = unknown> {
   original: string;
   lowercased: string;
+  data?: T;
 }
 
 interface TextSearchClientOptions {
@@ -22,23 +23,24 @@ interface TextSearchClientOptions {
   errorRate?: number;
 }
 
-export class TextSearchClient extends EventEmitter<Events> {
-  entries: PreprocessedEntry[];
+export class TextSearchClient<T = unknown> extends EventEmitter<Events> {
+  records: PreprocessedEntry<T>[];
   options: TextSearchClientOptions | undefined;
 
-  constructor(entries?: string[], options?: TextSearchClientOptions) {
+  constructor(
+    records?: { key: string; data: T }[],
+    options?: TextSearchClientOptions
+  ) {
     super();
     this.options = options;
-    if (entries) {
-      this.entries = Array.from(new Set(entries)).map((entry) => ({
-        original: entry,
-        lowercased: entry.toLowerCase(),
+    if (records) {
+      this.records = records.map((record) => ({
+        original: record.key,
+        lowercased: record.key.toLowerCase(),
+        data: record.data,
       }));
     } else {
-      this.entries = [
-        { original: "apple", lowercased: "apple" },
-        { original: "banana", lowercased: "banana" },
-      ];
+      this.records = [];
     }
   }
 
@@ -46,7 +48,7 @@ export class TextSearchClient extends EventEmitter<Events> {
     this.options = { ...this.options, ...options };
   }
 
-  async search(query: string): Promise<string[]> {
+  async search(query: string): Promise<{ key: string; data?: T }[]> {
     this.emit("query", { eventName: "query", data: [query] });
     try {
       // Simulate an asynchronous search operation
@@ -54,19 +56,24 @@ export class TextSearchClient extends EventEmitter<Events> {
       const slowDownRate = this.options?.slowDownRate ?? 1;
       const delay = this.options?.delay ?? 300;
       const randomFactor = this.options?.randomizeDelay ? Math.random() : 1;
-      const results = await new Promise<string[]>((resolve, reject) => {
-        setTimeout(() => {
-          if (Math.random() < errorRate) {
-            reject(new Error(`Search for "${query}" failed`));
-          } else {
-            resolve(
-              this.entries
-                .filter((entry) => entry.lowercased.includes(query))
-                .map((entry) => entry.original)
-            );
-          }
-        }, Math.floor(slowDownRate * delay * randomFactor));
-      });
+      const results = await new Promise<{ key: string; data?: T }[]>(
+        (resolve, reject) => {
+          setTimeout(() => {
+            if (Math.random() < errorRate) {
+              reject(new Error(`Search for "${query}" failed`));
+            } else {
+              resolve(
+                this.records
+                  .filter((record) => record.lowercased.includes(query))
+                  .map((record) => ({
+                    key: record.original,
+                    data: record.data,
+                  }))
+              );
+            }
+          }, Math.floor(slowDownRate * delay * randomFactor));
+        }
+      );
 
       this.emit("searchCompleted", {
         eventName: "searchCompleted",

@@ -19,7 +19,18 @@ export function Example() {
   });
 
   const [userQuery, setUserQuery] = useState("");
-  const searchClient = useMemo(() => new TextSearchClient(AMERICAN_CITIES), []);
+  const searchClient = useMemo(
+    () =>
+      new TextSearchClient(
+        AMERICAN_CITIES.map((city) => ({
+          key: city,
+          data: {
+            population: Math.floor(Math.random() * 1000000),
+          },
+        }))
+      ),
+    []
+  );
 
   useEffect(() => {
     searchClient.setOptions({
@@ -29,12 +40,13 @@ export function Example() {
     });
   }, [exampleState, searchClient]);
 
-  const search: QueryFunction<string[], string[]> = useCallback(
-    ({ queryKey }) => {
-      return searchClient.search(queryKey?.[0]);
-    },
-    [searchClient]
-  );
+  const search: QueryFunction<{ key: string; data?: unknown }[], string[]> =
+    useCallback(
+      ({ queryKey }) => {
+        return searchClient.search(queryKey?.[0]);
+      },
+      [searchClient]
+    );
 
   const {
     data,
@@ -150,8 +162,8 @@ export function Example() {
             style={{ height: 200, overflow: "auto" }}
           >
             {data?.map((result) => (
-              <code style={{ display: "block" }} key={result}>
-                {result}
+              <code style={{ display: "block" }} key={result.key}>
+                {result.key} - {JSON.stringify(result.data)}
               </code>
             ))}
           </div>
